@@ -5,3 +5,4 @@ amelioree_stgermain.jpg -> 004.jpg
 upscaled_image_full_quality.jpg -> 005.jpg
 replicate-prediction-7r5s2nhzkdrmw0d1dmnv6gaq1m.jpg -> 006.jpg
 replicate-prediection-8stv6qqtcnrmr0d1dn0vv8ztdr.png -> 007.png
+replicate-prediction-3a58bczt91rmw0d1aj5s0t8qdr.jpg -> 008.jpg
