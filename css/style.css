@@ -53,6 +53,14 @@ body {
   font-family: var(--sans);
   font-weight: 300;
   line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#app {
+  flex: 1;
+  width: 100%;
 }
 
 a {
