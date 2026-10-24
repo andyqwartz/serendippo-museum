@@ -51,8 +51,9 @@ def read_js(path):
 def load_config():
     if CONFIG.exists():
         return json.loads(CONFIG.read_text(encoding="utf-8"))
-    cfg = {"title": "SERENDIPPO", "author": "", "statement": "A museum of fortunate accidents.",
-           "about": [], "contact": "", "series": {}}
+    cfg = {"title": {"fr": "SERENDIPPO", "en": "SERENDIPPO"}, "author": "",
+           "statement": {"fr": "Un musée d'accidents heureux.", "en": "A museum of fortunate accidents."},
+           "about": {"fr": [], "en": []}, "contact": {"fr": "", "en": ""}, "series": {}}
     if PROJECTS.exists():
         try:
             old = read_js(PROJECTS)
@@ -60,9 +61,10 @@ def load_config():
                 if k in old:
                     cfg[k] = old[k]
             for r in old.get("rooms", []):
-                key = slugify(r.get("slug") or r.get("title") or "serie")
-                cfg["series"][key] = {"folder": r.get("title", key), "number": r.get("number", ""),
-                                      "year": r.get("year", ""), "text": r.get("text", "")}
+                key = slugify(r.get("slug") or r.get("title", {}).get("fr", "") or "serie")
+                cfg["series"][key] = {"folder": r.get("title", {}).get("fr", key), "number": r.get("number", ""),
+                                      "year": r.get("year", ""), "text": r.get("text", {"fr": "", "en": ""}),
+                                      "title": r.get("title", {"fr": key, "en": key})}
             print("Migration : data/config.json créé depuis l'ancien data/projects.js")
         except Exception as e:
             print("Attention : ancien projects.js illisible (%s), config créée par défaut" % e)
@@ -142,11 +144,19 @@ def prune(slug, keep):
                     print("  supprimé (obsolète) : %s" % f)
 
 
-def read_works(slug):
+def read_works(slug, existing_works=None):
+    """Read works from images/ and merge with existing metadata from config."""
     works = []
     full = IMG / slug / "full"
     if not full.exists():
         return works
+    
+    # Build lookup of existing works by id
+    existing = {}
+    if existing_works:
+        for w in existing_works:
+            existing[w["id"]] = w
+    
     for f in sorted(full.glob("*.webp"), key=lambda p: natural(p.name)):
         if not f.stem.isdigit():
             print("  ignoré (nom non numéroté) : %s" % f)
@@ -156,7 +166,17 @@ def read_works(slug):
             continue
         with Image.open(f) as im:
             w, h = im.size
-        works.append({"id": f.stem, "file": f.name, "w": w, "h": h})
+        
+        work = {"id": f.stem, "file": f.name, "w": w, "h": h}
+        
+        # Merge existing metadata if available
+        if f.stem in existing:
+            ex = existing[f.stem]
+            for key in ("description", "date", "medium"):
+                if key in ex and ex[key]:
+                    work[key] = ex[key]
+        
+        works.append(work)
     return works
 
 
@@ -189,7 +209,11 @@ def main():
         if not entry.get("number"):
             entry["number"] = next_number(series)
         entry.setdefault("year", str(date.today().year))
-        entry.setdefault("text", "")
+        # Initialize bilingual text and title if not present
+        if "text" not in entry or isinstance(entry["text"], str):
+            entry["text"] = {"fr": entry.get("text", ""), "en": ""}
+        if "title" not in entry or isinstance(entry["title"], str):
+            entry["title"] = {"fr": entry.get("folder", slug), "en": entry.get("folder", slug)}
         print("Série %s (%s)" % (entry["folder"], slug))
         done = renumber(d)
         keep = set()
@@ -212,16 +236,30 @@ def main():
     for slug, e in sorted(series.items(), key=lambda kv: natural(str(kv[1].get("number") or "99"))):
         if slug not in folders:
             continue
-        works = read_works(slug)
+        # Get existing works metadata from config
+        existing_works = e.get("works", [])
+        works = read_works(slug, existing_works)
         if not works:
             print("Série %s sans image : ignorée" % slug)
             continue
         files = [w["file"] for w in works]
         cover = e.get("cover") if e.get("cover") in files else files[0]
-        rooms.append({"slug": slug, "number": e.get("number", ""), "title": e.get("folder") or slug,
-                      "year": e.get("year", ""), "text": e.get("text", ""), "cover": cover, "works": works})
+        # Store works metadata back to config for persistence
+        e["works"] = works
+        rooms.append({"slug": slug, "number": e.get("number", ""), "title": e.get("title", {"fr": slug, "en": slug}),
+                      "year": e.get("year", ""), "text": e.get("text", {"fr": "", "en": ""}), "cover": cover, "works": works})
 
-    out = {k: cfg.get(k, [] if k == "about" else "") for k in SITE_KEYS}
+    # Build output with bilingual support
+    out = {}
+    for k in SITE_KEYS:
+        val = cfg.get(k, [] if k == "about" else "")
+        # Ensure bilingual structure
+        if k in ("title", "statement", "contact") and isinstance(val, str):
+            out[k] = {"fr": val, "en": val}
+        elif k == "about" and isinstance(val, list):
+            out[k] = {"fr": val, "en": val}
+        else:
+            out[k] = val
     out["rooms"] = rooms
     PROJECTS.write_text("window.MUSEUM = " + json.dumps(out, ensure_ascii=False, indent=2) + ";\n",
                         encoding="utf-8")

@@ -37,6 +37,20 @@ for room in data.get("rooms", []):
             errors.append("w/h manquants : %s/%s" % (s, w["file"]))
         if "prompt" in w:
             errors.append("champ prompt interdit : %s/%s" % (s, w["file"]))
+        # Validate optional fields if present
+        for opt in ("description", "date", "medium"):
+            if opt in w and not isinstance(w[opt], str):
+                errors.append("champ %s doit être une chaîne : %s/%s" % (opt, s, w["file"]))
+
+# Validate bilingual structure for site keys
+for key in ("title", "statement", "contact"):
+    val = data.get(key)
+    if val is not None and not (isinstance(val, dict) and "fr" in val and "en" in val):
+        errors.append("clé %s doit être bilingue {fr, en} : %s" % (key, val))
+if "about" in data:
+    val = data["about"]
+    if not (isinstance(val, dict) and "fr" in val and "en" in val and isinstance(val["fr"], list) and isinstance(val["en"], list)):
+        errors.append("clé about doit être bilingue {fr: [...], en: [...]}")
 
 files = list(Path(".").glob("*.html")) + list(Path("css").glob("*.css")) + list(Path("js").glob("*.js"))
 for f in files:
@@ -55,8 +69,10 @@ if re.search(r"#ff4d2e|accent", css, re.I):
 js = Path("js/main.js").read_text(encoding="utf-8")
 if "function caption" not in js:
     errors.append("js/main.js : fonction caption() manquante")
-if re.search(r"\.(prompt|medium)\b", js):
-    errors.append("js/main.js : champ supprimé (prompt ou medium) encore utilisé")
+if "function t" not in js:
+    errors.append("js/main.js : fonction t() pour traduction manquante")
+if re.search(r"\.prompt\b", js):
+    errors.append("js/main.js : champ supprimé (prompt) encore utilisé")
 
 if not Path(".github/workflows/pages.yml").exists():
     errors.append("workflow GitHub Actions manquant : .github/workflows/pages.yml")

@@ -69,7 +69,7 @@ a:hover {
   outline-offset: 4px;
 }
 
-.nav-link, #theme-toggle {
+.nav-link, #theme-toggle, #lang-toggle {
   font-family: var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.15em;
@@ -81,7 +81,7 @@ a:hover {
   cursor: pointer;
 }
 
-.nav-link:hover, #theme-toggle:hover {
+.nav-link:hover, #theme-toggle:hover, #lang-toggle:hover {
   text-decoration: underline;
 }
 
@@ -276,10 +276,27 @@ a:hover {
   color: var(--dim);
   text-transform: uppercase;
   letter-spacing: 0.15em;
+  line-height: 1.6;
 }
 
-.work figcaption .work-id {
+.work figcaption .num {
   color: var(--fg);
+}
+
+.work figcaption .desc {
+  display: block;
+  margin-top: 0.3rem;
+  font-style: italic;
+  text-transform: none;
+  color: var(--fg);
+}
+
+.work figcaption .meta {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.65rem;
+  color: var(--dim);
+  text-transform: none;
 }
 
 #lightbox {
@@ -311,11 +328,29 @@ a:hover {
   color: var(--dim);
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  white-space: nowrap;
+  white-space: normal;
+  text-align: center;
+  max-width: 90vw;
 }
 
-#lightbox figcaption .work-id {
+#lightbox figcaption .num {
   color: var(--fg);
+}
+
+#lightbox figcaption .desc {
+  display: block;
+  margin-top: 0.5rem;
+  font-style: italic;
+  text-transform: none;
+  color: var(--fg);
+}
+
+#lightbox figcaption .meta {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.65rem;
+  color: var(--dim);
+  text-transform: none;
 }
 
 #lightbox-controls {

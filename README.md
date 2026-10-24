@@ -1,53 +1,149 @@
 # SERENDIPPO — Museum of Fortunate Accidents
 
-Un musée virtuel statique : un dossier d'images = une salle. Tu ajoutes des dossiers et des images, GitHub génère et publie le site tout seul.
+> A static virtual museum where chance meets curation.  
+> Drop a folder of images. GitHub builds the rest.
 
-## Principe
+---
 
-Chaque série d'images vit dans son propre dossier de `sources/`. Le nom du dossier est le nom de la série, affiché partout sur le site. Les œuvres n'ont pas de titre : elles sont numérotées 001, 002, 003… et portent le nom de leur série. À chaque envoi sur GitHub, un workflow (GitHub Actions) renomme les images, crée les versions WebP, génère les pages et publie le site sur GitHub Pages. Il n'y a rien d'autre à faire.
+## The Idea
+
+**One folder = one room.**  
+Name the folder, fill it with images. No titles, no metadata required.  
+Works are numbered 001, 002, 003… and inherit the series name.
+
+Push to `main`. GitHub Actions wakes up:
+- renames files to sequential numbers (stable — existing numbers never shift)
+- generates WebP (full 2000px + thumb 640px)
+- builds `data/projects.js` from `data/config.json`
+- publishes to GitHub Pages
+
+The live site updates in ~2 minutes. Watch it in the **Actions** tab.
 
 ```
-sources/                      tes images, versionnées avec le projet
-  Saint-Germain/              une série = une salle
-    nimporte-quel-nom.png     noms libres : ils seront renommés
-data/config.json              réglages éditables (titre du site, textes, année des séries)
-.github/workflows/pages.yml   le workflow qui génère et publie le site
-data/projects.js              GÉNÉRÉ, ignoré par git
-images/                       GÉNÉRÉ, ignoré par git : WebP complet et miniature
+sources/                    your originals, versioned
+  saint-germain/            a series = a room
+    whatever-name.png       free names → auto-renamed
+data/config.json            editable settings (titles, texts, years, bilingual)
+.github/workflows/pages.yml the pipeline
+data/projects.js            GENERATED, git-ignored
+images/                     GENERATED, git-ignored (WebP full + thumb)
 ```
 
-## Ajouter une série ou des images
+---
 
-Sur GitHub, sans rien installer : ouvre le dépôt, « Add file » > « Upload files », glisse un dossier ou des images (dans `sources/NOM DE LA SERIE/`), puis « Commit changes ». L'interface web limite la taille et le nombre de fichiers par envoi : pour les gros lots, utilise la méthode ci-dessous.
+## Add a Series or Images
 
-Depuis le Mac : dépose les images dans `sources/NOM DE LA SERIE/` (majuscules, accents et espaces permis), puis double-clic sur `publier.command`. Il génère et vérifie en local, récupère les renommages faits par GitHub, enregistre et envoie.
+**On GitHub (no install needed):**  
+`Add file → Upload files → drop folder into sources/NAME/ → Commit`
 
-Dans les deux cas, GitHub renomme les images, génère le site et le publie en une à deux minutes (suivi dans l'onglet Actions du dépôt). Les images déjà numérotées gardent leur numéro, les nouvelles prennent les suivants (dans l'ordre alphabétique naturel de leurs noms), donc rien ne se décale. Quand GitHub renomme des images, il enregistre le renommage dans le dépôt (commit « Renommage automatique des images ») et `_renommages.txt` garde les anciens noms.
+**From your Mac:**  
+Drop images into `sources/NAME/` (spaces, accents, caps welcome).  
+Double-click `publier.command` — it builds, verifies, syncs, pushes.
 
-## Prévisualiser en local (automatique)
+Either way: stable numbering, `_renommages.txt` logs every rename, auto-committed by the workflow.
 
-```sh
+---
+
+## Local Preview (Auto-Regen)
+
+```bash
 python3 tools/serve.py
 ```
 
-Sur Mac, double-clic sur `lancer.command` fait la même chose. Le serveur génère le site au démarrage, ouvre le navigateur, puis régénère tout seul à chaque rafraîchissement si `sources/` a changé. Sans le serveur (double-clic sur `index.html`), le site affiche le dernier état généré ; `python3 tools/build.py` régénère à la main (`--force` retraite toutes les images).
+Or double-click `lancer.command` on macOS.  
+Server starts → builds → opens browser → **rebuilds on every page refresh** if `sources/` changed.
 
-## Retirer une série ou une image
+Offline mode: double-click `index.html` → shows last built state.  
+Manual rebuild: `python3 tools/build.py` (`--force` to reprocess all).
 
-Supprime le dossier ou l'image dans `sources/` (sur GitHub ou en local), puis envoie : la série ou l'image disparaît du site. Les autres images gardent leur numéro.
+---
 
-## Réglages
+## Remove a Series or Image
 
-`data/config.json` contient le titre du site (`title`), la phrase d'accueil (`statement`), les paragraphes de la page À propos (`about`), le `contact` et, pour chaque série, son `number` (ordre des salles), son `year` et son `text` de présentation. Pour changer la couverture d'une salle, ajoute `"cover": "005.webp"` dans sa série. Le fichier doit rester du JSON strict (guillemets doubles, pas de virgule après le dernier élément).
+Delete the folder or file in `sources/` (GitHub UI or locally), then push.  
+The room/image vanishes. Other works keep their numbers.
 
-## Règles absolues
+---
 
-La Memory Bank n'est jamais commitée : le hook git, `tools/check.py` et le workflow la bloquent. Les originaux de `sources/` sont dans le dépôt : si le dépôt est public, ils sont téléchargeables en pleine résolution. GitHub refuse les fichiers de plus de 100 Mo.
+## Describe Your Works (Optional)
 
-## Mise en ligne (une seule fois, sur ordre)
+Edit `data/config.json` — each work can have:
 
-Crée un dépôt GitHub nommé `serendippo-museum` (URL finale : `https://UTILISATEUR.github.io/serendippo-museum/`), puis connecte le projet avec `git remote add origin URL`. Dans le dépôt, Settings > Pages > Build and deployment > Source : choisis « GitHub Actions ». Fais ensuite le premier envoi avec `publier.command` (ou `python3 tools/publish.py`). Si le premier déploiement a échoué parce que Pages n'était pas encore réglé, onglet Actions > ouvre l'exécution en échec > « Re-run all jobs ».
+```json
+{
+  "id": "001",
+  "file": "001.webp",
+  "w": 2000,
+  "h": 1135,
+  "description": "A misty morning on the Seine, generated with a custom LoRA.",
+  "date": "2026-03-15",
+  "medium": "AI generation, Stable Diffusion XL"
+}
+```
 
-## Dépannage
+Fields are optional — only filled fields appear.  
+Date and medium show as subtle metadata. Description sits under the work number.
 
-Si l'onglet Actions affiche une croix rouge, ouvre l'exécution et lis l'étape en échec : les messages de `tools/build.py` et `tools/check.py` disent quoi corriger, et le site précédent reste en ligne tant que la génération échoue. Si le chemin du projet contient des espaces, mets-le entre guillemets dans le terminal. Si Pillow manque en local : `python3 -m pip install pillow` (ou, si macOS refuse : `python3 -m venv .venv && source .venv/bin/activate && pip install pillow`). Si le port 8000 est occupé : `python3 tools/serve.py 8001`.
+---
+
+## Bilingual by Default
+
+Every text field supports `{ "fr": "...", "en": "..." }`:
+- Site title, statement, contact
+- About page paragraphs
+- Room title, room text
+- Work description
+
+Language toggle (FR/EN) in the header, persisted in `localStorage`.  
+Defaults to browser language.
+
+---
+
+## Settings
+
+`data/config.json` holds:
+- `title`, `statement`, `about`, `contact` (all bilingual)
+- Per series: `number` (room order), `year`, `text` (bilingual), `title` (bilingual), `cover` (filename), `works[]` (auto-managed + optional metadata)
+
+JSON must stay strict (double quotes, no trailing commas).
+
+---
+
+## Hard Rules
+
+- **Memory Bank never committed** — blocked by git hook, `check.py`, and the workflow
+- `sources/` originals are in the repo — public repo = full-res downloads
+- GitHub hard limit: **100 MB / file** — `check.py` flags >90 MB
+- `images/` and `data/projects.js` are **generated**, **git-ignored**, built fresh on every push
+
+---
+
+## First Deploy (Once)
+
+1. Create GitHub repo named `serendippo-museum`  
+   → live at `https://USER.github.io/serendippo-museum/`
+2. `git remote add origin URL`
+3. Repo Settings → Pages → **Build and deployment → Source: GitHub Actions**
+4. Double-click `publier.command` (or `python3 tools/publish.py`) for first push
+5. If Pages wasn't ready: Actions tab → failed run → **Re-run all jobs**
+
+---
+
+## Troubleshooting
+
+| Issue | Fix |
+|-------|-----|
+| Actions red cross | Open failed run → read `build.py` / `check.py` logs. Previous site stays live. |
+| Path has spaces | Wrap in quotes: `cd "SERENDIPPO — Museum..."` |
+| Pillow missing | `python3 -m pip install pillow` (macOS: `python3 -m venv .venv && source .venv/bin/activate && pip install pillow`) |
+| Port 8000 busy | `python3 tools/serve.py 8001` |
+| Language not switching | Clear `localStorage` or click toggle twice |
+
+---
+
+## Philosophy
+
+No CMS. No database. No build step on your machine.  
+Just folders, files, and a pipeline that gets out of the way.
+
+The museum is the images. Everything else is silence.
