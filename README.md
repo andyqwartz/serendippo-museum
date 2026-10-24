@@ -12,7 +12,7 @@ python3 -m http.server 8000
 ## Ajouter une salle (4 gestes)
 
 1. Mettre les originaux dans `sources/SLUG/`
-2. Lancer `python3 tools/optimize.py SLUG`
+2. Lancer `python3 tools/optimize.py Saint-Germain`
 3. Coller les lignes affichées dans le tableau `works` d'une nouvelle salle de `data/projects.js` en remplissant `title`, `year`, `medium`, `alt`
 4. Lancer `python3 tools/check.py`
 
