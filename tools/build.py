@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""SERENDIPPO : generateur du musee. Une seule commande.
+"""SERENDIPPO : generateur du musee.
 
 Usage :
-  python3 tools/build.py                  renumerote, optimise, ecrit data/projects.js, verifie
-  python3 tools/build.py --force          reconstruit toutes les images meme si elles sont a jour
-  python3 tools/build.py --retirer SLUG   retire une serie du site (images + config), jamais sources/
+  python3 tools/build.py          renumerote sources/, genere images/ et data/projects.js, verifie
+  python3 tools/build.py --force  reconstruit toutes les images meme si elles sont a jour
 
 Convention : sources/NOM DE LA SERIE/ contient les images (png, jpg, jpeg, webp, noms libres).
-Un dossier = une serie = une salle. Les oeuvres sont numerotees 001, 002, ... et portent le nom du dossier."""
+Un dossier = une serie = une salle. Les oeuvres sont numerotees 001, 002, ... et portent le nom du dossier.
+Meme regles en local (serve.py, publish.py) et sur GitHub (workflow pages.yml).
+images/ et data/projects.js sont GENERES : ils ne sont pas suivis par git."""
 import json, os, re, shutil, subprocess, sys, unicodedata
 from datetime import date
 from pathlib import Path
@@ -76,21 +77,6 @@ def save_config(cfg):
 def next_number(series):
     nums = [int(v["number"]) for v in series.values() if str(v.get("number", "")).isdigit()]
     return "%02d" % (max(nums) + 1 if nums else 1)
-
-
-def fix_case_dirs():
-    if not IMG.exists():
-        return
-    for d in sorted(IMG.iterdir()):
-        if d.is_dir() and not d.name.startswith(".") and d.name != slugify(d.name):
-            target = IMG / slugify(d.name)
-            if target.exists() and not target.samefile(d):
-                print("Attention : %s et %s existent tous les deux, fusion manuelle nécessaire" % (d, target))
-                continue
-            tmp = IMG / ("tmpren-" + d.name)
-            d.rename(tmp)
-            tmp.rename(target)
-            print("Dossier renommé : %s -> %s" % (d.name, target.name))
 
 
 def renumber(folder):
@@ -175,38 +161,27 @@ def read_works(slug):
 
 
 def main():
-    args = sys.argv[1:]
-    force = "--force" in args
-    skip = set()
+    force = "--force" in sys.argv[1:]
     errors = []
     cfg = load_config()
     series = cfg.setdefault("series", {})
-    fix_case_dirs()
-
-    if "--retirer" in args:
-        i = args.index("--retirer")
-        if i + 1 >= len(args):
-            sys.exit("Usage : python3 tools/build.py --retirer SLUG")
-        slug = slugify(args[i + 1])
-        series.pop(slug, None)
-        shutil.rmtree(IMG / slug, ignore_errors=True)
-        skip.add(slug)
-        print("Série retirée : %s" % slug)
-        if SRC.exists() and any(slugify(d.name) == slug for d in SRC.iterdir() if d.is_dir()):
-            print("ATTENTION : un dossier de sources/ correspond encore à cette série. "
-                  "Supprime-le, sinon elle reviendra au prochain build.")
 
     folders = {}
     if SRC.exists():
         for d in sorted(SRC.iterdir(), key=lambda p: natural(p.name)):
             if d.is_dir() and not d.name.startswith((".", "_")):
                 s = slugify(d.name)
-                if s in skip:
-                    continue
                 if s in folders:
                     print("Attention : %s donne le même identifiant que %s, ignoré" % (d.name, folders[s].name))
                     continue
                 folders[s] = d
+
+    # images/ est entierement genere : tout dossier qui ne correspond pas a une serie est supprime
+    if IMG.exists():
+        for d in sorted(IMG.iterdir()):
+            if d.is_dir() and d.name not in folders:
+                shutil.rmtree(d)
+                print("Supprimé (série retirée ou dossier mal nommé) : images/%s" % d.name)
 
     for slug, d in folders.items():
         entry = series.setdefault(slug, {})
@@ -235,6 +210,8 @@ def main():
 
     rooms = []
     for slug, e in sorted(series.items(), key=lambda kv: natural(str(kv[1].get("number") or "99"))):
+        if slug not in folders:
+            continue
         works = read_works(slug)
         if not works:
             print("Série %s sans image : ignorée" % slug)
@@ -243,11 +220,6 @@ def main():
         cover = e.get("cover") if e.get("cover") in files else files[0]
         rooms.append({"slug": slug, "number": e.get("number", ""), "title": e.get("folder") or slug,
                       "year": e.get("year", ""), "text": e.get("text", ""), "cover": cover, "works": works})
-
-    if IMG.exists():
-        for d in sorted(IMG.iterdir()):
-            if d.is_dir() and not d.name.startswith(".") and d.name not in series:
-                print("Attention : images/%s n'a pas de série (pas de dossier dans sources/), ignoré." % d.name)
 
     out = {k: cfg.get(k, [] if k == "about" else "") for k in SITE_KEYS}
     out["rooms"] = rooms

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Publie le musee : build + verification + commit + push, en une commande.
+"""Envoie le musee sur GitHub : genere en local, verifie, commit, synchronise, push.
+GitHub (workflow pages.yml) construit et publie ensuite le site tout seul.
 
-Usage : python3 tools/publish.py
-Demande confirmation (oui/non) avant de commiter et de pousser.
+Usage : python3 tools/publish.py   (ou double-clic sur publier.command)
 Prerequis (une seule fois) : depot GitHub + remote origin, voir README, section Mise en ligne."""
 import os, subprocess, sys
 from datetime import datetime
@@ -18,34 +18,26 @@ def run(cmd):
     return r
 
 
-if subprocess.run([sys.executable, "tools/build.py"]).returncode != 0:
-    sys.exit("Publication annulée : le build ou la vérification a échoué.")
-
 if "origin" not in run(["git", "remote"]).stdout.split():
-    sys.exit("Aucun dépôt distant « origin » : voir la section « Mise en ligne » du README. Rien n'a été publié.")
+    sys.exit("Aucun dépôt distant « origin » : voir la section « Mise en ligne » du README. Rien n'a été envoyé.")
 
-status = run(["git", "status", "--short"]).stdout.strip()
-if not status:
-    sys.exit("Rien à publier.")
-lines = status.splitlines()
-print("\n".join(lines[:30]))
-if len(lines) > 30:
-    print("… (+%d autres fichiers)" % (len(lines) - 30))
-
-try:
-    ans = input("\nPublier ces changements sur GitHub ? (oui/non) ").strip().lower()
-except EOFError:
-    ans = ""
-if ans != "oui":
-    sys.exit("Publication annulée : rien n'a été commité ni poussé.")
+if subprocess.run([sys.executable, "tools/build.py"]).returncode != 0:
+    sys.exit("Envoi annulé : le build ou la vérification a échoué.")
 
 run(["git", "add", "-A"])
 if subprocess.run([sys.executable, "tools/check.py"]).returncode != 0:
     subprocess.run(["git", "reset", "-q"])
-    sys.exit("Publication annulée : tools/check.py a échoué (index remis à zéro).")
+    sys.exit("Envoi annulé : tools/check.py a échoué (index remis à zéro).")
 
-msg = "Mise à jour du musée — " + datetime.now().strftime("%Y-%m-%d %H:%M")
-run(["git", "commit", "-m", msg])
+if run(["git", "status", "--short"]).stdout.strip():
+    run(["git", "commit", "-m", "Mise à jour du musée — " + datetime.now().strftime("%Y-%m-%d %H:%M")])
+else:
+    print("Aucun changement local à enregistrer.")
+
+heads = subprocess.run(["git", "ls-remote", "--exit-code", "--heads", "origin", "main"], capture_output=True)
+if heads.returncode == 0:
+    if subprocess.run(["git", "pull", "--rebase", "origin", "main"]).returncode != 0:
+        sys.exit("Synchronisation impossible (conflit). Rien n'a été envoyé : montre ce message à Hermes.")
 if subprocess.run(["git", "push", "-u", "origin", "main"]).returncode != 0:
-    sys.exit("Le commit est fait en local, mais le push a échoué (voir le message ci-dessus).")
-print("Publié. GitHub Pages met le site à jour en une à deux minutes.")
+    sys.exit("L'envoi a échoué (voir le message ci-dessus).")
+print("Envoyé. GitHub génère et publie le site en une à deux minutes (onglet Actions du dépôt).")

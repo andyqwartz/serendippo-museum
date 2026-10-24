@@ -1,0 +1,56 @@
+name: Générer et publier le musée
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Installer Pillow
+        run: python -m pip install pillow
+      - name: Générer le site (renommage, WebP, pages, vérification)
+        run: python tools/build.py
+      - name: Enregistrer les renommages automatiques dans le dépôt
+        run: |
+          git config user.name "serendippo-bot"
+          git config user.email "serendippo-bot@users.noreply.github.com"
+          git add -A sources data/config.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Renommage automatique des images"
+            git push origin HEAD:main || (git pull --rebase origin main && git push origin HEAD:main)
+          fi
+      - name: Assembler le site à publier
+        run: |
+          mkdir -p _site/data
+          cp index.html salle.html a-propos.html _site/
+          cp -R css js images _site/
+          cp data/projects.js _site/data/
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

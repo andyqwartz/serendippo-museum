@@ -1,71 +1,53 @@
 # SERENDIPPO — Museum of Fortunate Accidents
 
-Un musée virtuel statique : un dossier d'images = une salle. Tu déposes des images, le site se met à jour tout seul.
+Un musée virtuel statique : un dossier d'images = une salle. Tu ajoutes des dossiers et des images, GitHub génère et publie le site tout seul.
 
 ## Principe
 
-Chaque série d'images vit dans son propre dossier de `sources/` (ignoré par git, jamais publié). Le nom du dossier est le nom de la série, affiché partout sur le site. Les œuvres n'ont pas de titre : elles sont numérotées 001, 002, 003… et portent le nom de leur série. Tout le reste est généré.
+Chaque série d'images vit dans son propre dossier de `sources/`. Le nom du dossier est le nom de la série, affiché partout sur le site. Les œuvres n'ont pas de titre : elles sont numérotées 001, 002, 003… et portent le nom de leur série. À chaque envoi sur GitHub, un workflow (GitHub Actions) renomme les images, crée les versions WebP, génère les pages et publie le site sur GitHub Pages. Il n'y a rien d'autre à faire.
 
 ```
-sources/                      originaux, ignorés par git
+sources/                      tes images, versionnées avec le projet
   Saint-Germain/              une série = une salle
     nimporte-quel-nom.png     noms libres : ils seront renommés
 data/config.json              réglages éditables (titre du site, textes, année des séries)
-data/projects.js              GÉNÉRÉ : ne jamais l'éditer à la main
-images/                       GÉNÉRÉ : WebP complet et miniature, par série
+.github/workflows/pages.yml   le workflow qui génère et publie le site
+data/projects.js              GÉNÉRÉ, ignoré par git
+images/                       GÉNÉRÉ, ignoré par git : WebP complet et miniature
 ```
 
-GitHub Pages ne sert que des fichiers statiques : il ne peut pas explorer des dossiers. La génération se fait donc avant la publication, automatiquement en local.
+## Ajouter une série ou des images
 
-## Travailler en local (automatique)
+Sur GitHub, sans rien installer : ouvre le dépôt, « Add file » > « Upload files », glisse un dossier ou des images (dans `sources/NOM DE LA SERIE/`), puis « Commit changes ». L'interface web limite la taille et le nombre de fichiers par envoi : pour les gros lots, utilise la méthode ci-dessous.
+
+Depuis le Mac : dépose les images dans `sources/NOM DE LA SERIE/` (majuscules, accents et espaces permis), puis double-clic sur `publier.command`. Il génère et vérifie en local, récupère les renommages faits par GitHub, enregistre et envoie.
+
+Dans les deux cas, GitHub renomme les images, génère le site et le publie en une à deux minutes (suivi dans l'onglet Actions du dépôt). Les images déjà numérotées gardent leur numéro, les nouvelles prennent les suivants (dans l'ordre alphabétique naturel de leurs noms), donc rien ne se décale. Quand GitHub renomme des images, il enregistre le renommage dans le dépôt (commit « Renommage automatique des images ») et `_renommages.txt` garde les anciens noms.
+
+## Prévisualiser en local (automatique)
 
 ```sh
 python3 tools/serve.py
 ```
 
-Sur Mac, double-clic sur `lancer.command` fait la même chose. Le serveur génère le site au démarrage, ouvre le navigateur, puis à chaque rafraîchissement de la page il vérifie si `sources/` a changé (image ou dossier ajouté, supprimé, modifié) et régénère le site avant de l'afficher. Pour ajouter une image : dépose-la dans le dossier de sa série, rafraîchis la page (F5). Pour ajouter une série : crée un dossier dans `sources/` (majuscules, accents et espaces permis), dépose-y des images, rafraîchis.
+Sur Mac, double-clic sur `lancer.command` fait la même chose. Le serveur génère le site au démarrage, ouvre le navigateur, puis régénère tout seul à chaque rafraîchissement si `sources/` a changé. Sans le serveur (double-clic sur `index.html`), le site affiche le dernier état généré ; `python3 tools/build.py` régénère à la main (`--force` retraite toutes les images).
 
-Les images sont renommées sur place en 001, 002, 003… Les images déjà numérotées gardent leur numéro, les nouvelles prennent les numéros suivants (dans l'ordre alphabétique naturel de leurs noms), donc rien ne se décale. Les anciens noms sont conservés dans `_renommages.txt`, dans le dossier de la série. Pour retirer une image, supprime son fichier numéroté dans `sources/` et rafraîchis : les autres gardent leur numéro.
+## Retirer une série ou une image
 
-Sans le serveur (double-clic sur `index.html`), le site affiche le dernier état généré. Dans ce cas, lance `python3 tools/build.py` à la main (`--force` retraite toutes les images).
-
-## Publier
-
-```sh
-python3 tools/publish.py
-```
-
-La commande génère le site, le vérifie, affiche les changements, demande confirmation, puis commit et pousse sur GitHub. Prérequis, une seule fois : la section « Mise en ligne » ci-dessous.
+Supprime le dossier ou l'image dans `sources/` (sur GitHub ou en local), puis envoie : la série ou l'image disparaît du site. Les autres images gardent leur numéro.
 
 ## Réglages
 
-`data/config.json` contient le titre du site (`title`), la phrase d'accueil (`statement`), les paragraphes de la page À propos (`about`), le `contact` et, pour chaque série, son `number` (ordre des salles), son `year` et son `text` de présentation. Pour changer la couverture d'une salle, ajoute `"cover": "005.webp"` dans sa série. Le fichier doit rester du JSON strict (guillemets doubles, pas de virgule après le dernier élément). Rafraîchis la page ensuite.
+`data/config.json` contient le titre du site (`title`), la phrase d'accueil (`statement`), les paragraphes de la page À propos (`about`), le `contact` et, pour chaque série, son `number` (ordre des salles), son `year` et son `text` de présentation. Pour changer la couverture d'une salle, ajoute `"cover": "005.webp"` dans sa série. Le fichier doit rester du JSON strict (guillemets doubles, pas de virgule après le dernier élément).
 
-## Retirer une série (ou la salle de test)
+## Règles absolues
 
-Supprime d'abord son dossier de `sources/`, puis retire-la du site :
-
-```sh
-rm -r "sources/salle-test"
-python3 tools/build.py --retirer salle-test
-```
-
-L'identifiant (`salle-test`, `saint-germain`) est le nom du dossier en minuscules, sans accents, avec des tirets.
-
-## Règle absolue
-
-La Memory Bank et `sources/` ne sont jamais commités.
+La Memory Bank n'est jamais commitée : le hook git, `tools/check.py` et le workflow la bloquent. Les originaux de `sources/` sont dans le dépôt : si le dépôt est public, ils sont téléchargeables en pleine résolution. GitHub refuse les fichiers de plus de 100 Mo.
 
 ## Mise en ligne (une seule fois, sur ordre)
 
-Créer un dépôt GitHub nommé `serendippo-museum` (URL finale : `https://UTILISATEUR.github.io/serendippo-museum/`), puis :
-
-```sh
-git remote add origin URL
-```
-
-Puis Settings > Pages > Source « Deploy from a branch » > branche `main`, dossier `/ (root)`. Ensuite, chaque publication se fait avec `python3 tools/publish.py` (le premier push crée la branche sur GitHub). Avant de publier, la commande lance `tools/check.py`, qui bloque si la Memory Bank ou `sources/` est suivie par git.
+Crée un dépôt GitHub nommé `serendippo-museum` (URL finale : `https://UTILISATEUR.github.io/serendippo-museum/`), puis connecte le projet avec `git remote add origin URL`. Dans le dépôt, Settings > Pages > Build and deployment > Source : choisis « GitHub Actions ». Fais ensuite le premier envoi avec `publier.command` (ou `python3 tools/publish.py`). Si le premier déploiement a échoué parce que Pages n'était pas encore réglé, onglet Actions > ouvre l'exécution en échec > « Re-run all jobs ».
 
 ## Dépannage
 
-Si le chemin du projet contient des espaces, mets-le entre guillemets dans le terminal. Si Pillow manque : `python3 -m pip install pillow`. Si macOS refuse (« externally-managed-environment ») : `python3 -m venv .venv && source .venv/bin/activate && pip install pillow`, puis relance la commande dans ce même terminal (`.venv/` est ignoré par git). Si le port 8000 est occupé : `python3 tools/serve.py 8001`.
+Si l'onglet Actions affiche une croix rouge, ouvre l'exécution et lis l'étape en échec : les messages de `tools/build.py` et `tools/check.py` disent quoi corriger, et le site précédent reste en ligne tant que la génération échoue. Si le chemin du projet contient des espaces, mets-le entre guillemets dans le terminal. Si Pillow manque en local : `python3 -m pip install pillow` (ou, si macOS refuse : `python3 -m venv .venv && source .venv/bin/activate && pip install pillow`). Si le port 8000 est occupé : `python3 tools/serve.py 8001`.

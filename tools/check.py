@@ -58,12 +58,18 @@ if "function caption" not in js:
 if re.search(r"\.(prompt|medium)\b", js):
     errors.append("js/main.js : champ supprimé (prompt ou medium) encore utilisé")
 
-res = subprocess.run(["git", "ls-files"], capture_output=True, text=True)
+if not Path(".github/workflows/pages.yml").exists():
+    errors.append("workflow GitHub Actions manquant : .github/workflows/pages.yml")
+
+res = subprocess.run(["git", "-c", "core.quotepath=false", "ls-files"], capture_output=True, text=True)
 for f in res.stdout.splitlines():
-    if re.search(r"(^|/)\.?memory[-_ ]?bank(/|$)", f, re.I) or f.startswith("sources/"):
-        errors.append("INTERDIT dans git : %s" % f)
-    if f.startswith("images/") and f != f.lower():
-        errors.append("majuscules dans un chemin suivi par git (casse sur GitHub Pages) : %s" % f)
+    if re.search(r"(^|/)\.?memory[-_ ]?bank(/|$)", f, re.I):
+        errors.append("INTERDIT dans git (Memory Bank) : %s" % f)
+    if f.startswith("images/") or f == "data/projects.js":
+        errors.append("fichier généré suivi par git (il est produit par GitHub Actions) : %s" % f)
+    p = Path(f)
+    if p.is_file() and p.stat().st_size > 90 * 1024 * 1024:
+        errors.append("fichier trop gros pour GitHub (plus de 90 Mo) : %s" % f)
 
 if errors:
     print("\n".join("ERREUR " + e for e in errors))

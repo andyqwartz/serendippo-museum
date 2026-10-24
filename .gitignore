@@ -5,10 +5,12 @@ MEMORY_BANK/
 .memory-bank/
 memorybank/
 .hermes/
-sources/
 tools/__pycache__/
 __pycache__/
 .DS_Store
 *.log
 .env
 .venv/
+images/
+data/projects.js
+_site/

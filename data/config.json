@@ -14,6 +14,12 @@
       "number": "01",
       "year": "2026",
       "text": ""
+    },
+    "zz-test-auto": {
+      "folder": "zz-test-auto",
+      "number": "02",
+      "year": "2026",
+      "text": ""
     }
   }
 }
