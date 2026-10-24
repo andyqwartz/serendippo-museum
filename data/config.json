@@ -88,22 +88,9 @@
         }
       ]
     },
-    "zz-test-auto": {
-      "folder": "zz-test-auto",
-      "number": "02",
-      "year": "2026",
-      "text": {
-        "fr": "",
-        "en": ""
-      },
-      "title": {
-        "fr": "zz-test-auto",
-        "en": "zz-test-auto"
-      }
-    },
     "ileana-beckett-serie": {
       "folder": "Ileana Beckett Serie",
-      "number": "03",
+      "number": "02",
       "year": "2026",
       "text": {
         "fr": "",
