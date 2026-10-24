@@ -1,0 +1,13 @@
+memory-bank/
+memory_bank/
+Memory-Bank/
+MEMORY_BANK/
+.memory-bank/
+memorybank/
+.hermes/
+sources/
+tools/__pycache__/
+__pycache__/
+.DS_Store
+*.log
+.env
