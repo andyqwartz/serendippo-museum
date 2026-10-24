@@ -6,3 +6,11 @@ upscaled_image_full_quality.jpg -> 005.jpg
 replicate-prediction-7r5s2nhzkdrmw0d1dmnv6gaq1m.jpg -> 006.jpg
 replicate-prediection-8stv6qqtcnrmr0d1dn0vv8ztdr.png -> 007.png
 replicate-prediction-3a58bczt91rmw0d1aj5s0t8qdr.jpg -> 008.jpg
+amelioree_out-0sdfhjk.jpg -> 009.jpg
+amelioree_out-0xcjhfgd.jpg -> 010.jpg
+amelioree_out-1f.jpg -> 011.jpg
+amelioree_stgermain243j.jpg -> 012.jpg
+image_amelioree_haute_qualite.jpg -> 013.jpg
+replicate-prediction-bdy4eh5ranrmr0d1ae0tgmghdm.jpg -> 014.jpg
+replicate-prediction-j4xve95z09rmw0d1aj6s06kv84.jpg -> 015.jpg
+replicate-prediction-zwqn51430hrmr0d1adzax32jg8.jpg -> 016.jpg
