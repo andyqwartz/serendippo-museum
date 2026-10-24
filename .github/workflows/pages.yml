@@ -39,6 +39,7 @@ jobs:
         run: |
           mkdir -p _site/data
           cp index.html salle.html a-propos.html _site/
+          cp favicon.ico _site/
           cp -R css js images _site/
           cp data/projects.js _site/data/
       - uses: actions/upload-pages-artifact@v5
