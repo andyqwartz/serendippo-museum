@@ -1,0 +1,12 @@
+image_001.jpg -> 001.jpg
+image_002.jpg -> 002.jpg
+image_003.jpg -> 003.jpg
+image_004.jpg -> 004.jpg
+image_005.jpg -> 005.jpg
+image_006.jpg -> 006.jpg
+image_007.png -> 007.png
+image_008.png -> 008.png
+image_009.jpg -> 009.jpg
+image_010.jpg -> 010.jpg
+image_011.jpg -> 011.jpg
+image_012.jpg -> 012.jpg

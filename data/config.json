@@ -100,6 +100,93 @@
         "fr": "zz-test-auto",
         "en": "zz-test-auto"
       }
+    },
+    "ileana-beckett-serie": {
+      "folder": "Ileana Beckett Serie",
+      "number": "03",
+      "year": "2026",
+      "text": {
+        "fr": "",
+        "en": ""
+      },
+      "title": {
+        "fr": "Ileana Beckett Serie",
+        "en": "Ileana Beckett Serie"
+      },
+      "works": [
+        {
+          "id": "001",
+          "file": "001.webp",
+          "w": 1088,
+          "h": 1360
+        },
+        {
+          "id": "002",
+          "file": "002.webp",
+          "w": 1088,
+          "h": 1360
+        },
+        {
+          "id": "003",
+          "file": "003.webp",
+          "w": 1088,
+          "h": 1360
+        },
+        {
+          "id": "004",
+          "file": "004.webp",
+          "w": 1088,
+          "h": 1360
+        },
+        {
+          "id": "005",
+          "file": "005.webp",
+          "w": 1088,
+          "h": 1360
+        },
+        {
+          "id": "006",
+          "file": "006.webp",
+          "w": 1088,
+          "h": 1360
+        },
+        {
+          "id": "007",
+          "file": "007.webp",
+          "w": 1088,
+          "h": 1360
+        },
+        {
+          "id": "008",
+          "file": "008.webp",
+          "w": 1088,
+          "h": 1360
+        },
+        {
+          "id": "009",
+          "file": "009.webp",
+          "w": 1088,
+          "h": 1360
+        },
+        {
+          "id": "010",
+          "file": "010.webp",
+          "w": 1088,
+          "h": 1360
+        },
+        {
+          "id": "011",
+          "file": "011.webp",
+          "w": 1088,
+          "h": 1360
+        },
+        {
+          "id": "012",
+          "file": "012.webp",
+          "w": 1088,
+          "h": 1360
+        }
+      ]
     }
   }
 }
