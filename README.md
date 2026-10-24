@@ -1,6 +1,6 @@
 # SERENDIPPO — Museum of Fortunate Accidents
 
-Un musée virtuel statique : un dossier d'images = une salle. Une seule commande génère tout le site.
+Un musée virtuel statique : un dossier d'images = une salle. Tu déposes des images, le site se met à jour tout seul.
 
 ## Principe
 
@@ -15,30 +15,31 @@ data/projects.js              GÉNÉRÉ : ne jamais l'éditer à la main
 images/                       GÉNÉRÉ : WebP complet et miniature, par série
 ```
 
-## Ouvrir le site en local
+GitHub Pages ne sert que des fichiers statiques : il ne peut pas explorer des dossiers. La génération se fait donc avant la publication, automatiquement en local.
 
-Double-clic sur `index.html`, ou serveur local :
-
-```sh
-python3 -m http.server 8000
-# puis http://localhost:8000
-```
-
-## Ajouter ou compléter une série
-
-Crée un dossier dans `sources/` au nom de la série (majuscules, accents et espaces sont permis), dépose-y les images avec n'importe quels noms, puis lance depuis la racine du projet :
+## Travailler en local (automatique)
 
 ```sh
-python3 tools/build.py
+python3 tools/serve.py
 ```
 
-La commande renomme sur place les images en 001, 002, 003…, crée les versions WebP (complète et miniature), régénère `data/projects.js` et lance la vérification. Rouvre le site : la série est là.
+Sur Mac, double-clic sur `lancer.command` fait la même chose. Le serveur génère le site au démarrage, ouvre le navigateur, puis à chaque rafraîchissement de la page il vérifie si `sources/` a changé (image ou dossier ajouté, supprimé, modifié) et régénère le site avant de l'afficher. Pour ajouter une image : dépose-la dans le dossier de sa série, rafraîchis la page (F5). Pour ajouter une série : crée un dossier dans `sources/` (majuscules, accents et espaces permis), dépose-y des images, rafraîchis.
 
-Les images déjà numérotées gardent leur numéro, les nouvelles prennent les numéros suivants (dans l'ordre alphabétique naturel de leurs noms), donc rien ne se décale quand on ajoute des images. Les anciens noms sont conservés dans `_renommages.txt`, dans le dossier de la série. Pour retirer une image, supprime son fichier numéroté dans `sources/` et relance la commande : les autres gardent leur numéro. Seules les images nouvelles ou modifiées sont retraitées ; `python3 tools/build.py --force` retraite tout.
+Les images sont renommées sur place en 001, 002, 003… Les images déjà numérotées gardent leur numéro, les nouvelles prennent les numéros suivants (dans l'ordre alphabétique naturel de leurs noms), donc rien ne se décale. Les anciens noms sont conservés dans `_renommages.txt`, dans le dossier de la série. Pour retirer une image, supprime son fichier numéroté dans `sources/` et rafraîchis : les autres gardent leur numéro.
+
+Sans le serveur (double-clic sur `index.html`), le site affiche le dernier état généré. Dans ce cas, lance `python3 tools/build.py` à la main (`--force` retraite toutes les images).
+
+## Publier
+
+```sh
+python3 tools/publish.py
+```
+
+La commande génère le site, le vérifie, affiche les changements, demande confirmation, puis commit et pousse sur GitHub. Prérequis, une seule fois : la section « Mise en ligne » ci-dessous.
 
 ## Réglages
 
-`data/config.json` contient le titre du site (`title`), la phrase d'accueil (`statement`), les paragraphes de la page À propos (`about`), le `contact` et, pour chaque série, son `number` (ordre des salles), son `year` et son `text` de présentation. Pour changer la couverture d'une salle, ajoute `"cover": "005.webp"` dans sa série. Le fichier doit rester du JSON strict (guillemets doubles, pas de virgule après le dernier élément). Relance ensuite `python3 tools/build.py`.
+`data/config.json` contient le titre du site (`title`), la phrase d'accueil (`statement`), les paragraphes de la page À propos (`about`), le `contact` et, pour chaque série, son `number` (ordre des salles), son `year` et son `text` de présentation. Pour changer la couverture d'une salle, ajoute `"cover": "005.webp"` dans sa série. Le fichier doit rester du JSON strict (guillemets doubles, pas de virgule après le dernier élément). Rafraîchis la page ensuite.
 
 ## Retirer une série (ou la salle de test)
 
@@ -53,21 +54,18 @@ L'identifiant (`salle-test`, `saint-germain`) est le nom du dossier en minuscule
 
 ## Règle absolue
 
-La Memory Bank et `sources/` ne sont jamais commitées.
+La Memory Bank et `sources/` ne sont jamais commités.
 
-## Mise en ligne (plus tard, sur ordre)
+## Mise en ligne (une seule fois, sur ordre)
 
-Créer un dépôt GitHub nommé `serendippo-museum` (URL finale : `https://UTILISATEUR.github.io/serendippo-museum/`).
+Créer un dépôt GitHub nommé `serendippo-museum` (URL finale : `https://UTILISATEUR.github.io/serendippo-museum/`), puis :
 
 ```sh
 git remote add origin URL
-git push -u origin main
 ```
 
-Puis Settings > Pages > Source « Deploy from a branch » > branche `main`, dossier `/ (root)`.
-
-Avant tout push : lancer `python3 tools/check.py` et `git ls-files` pour contrôler qu'aucun fichier de la Memory Bank ni de `sources/` n'est suivi.
+Puis Settings > Pages > Source « Deploy from a branch » > branche `main`, dossier `/ (root)`. Ensuite, chaque publication se fait avec `python3 tools/publish.py` (le premier push crée la branche sur GitHub). Avant de publier, la commande lance `tools/check.py`, qui bloque si la Memory Bank ou `sources/` est suivie par git.
 
 ## Dépannage
 
-Si le chemin du projet contient des espaces, mets-le entre guillemets dans le terminal. Si Pillow manque : `python3 -m pip install pillow`. Si macOS refuse (« externally-managed-environment ») : `python3 -m venv .venv && source .venv/bin/activate && pip install pillow`, puis relance la commande dans ce même terminal (`.venv/` est ignoré par git).
+Si le chemin du projet contient des espaces, mets-le entre guillemets dans le terminal. Si Pillow manque : `python3 -m pip install pillow`. Si macOS refuse (« externally-managed-environment ») : `python3 -m venv .venv && source .venv/bin/activate && pip install pillow`, puis relance la commande dans ce même terminal (`.venv/` est ignoré par git). Si le port 8000 est occupé : `python3 tools/serve.py 8001`.
