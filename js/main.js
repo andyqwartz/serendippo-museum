@@ -12,6 +12,14 @@ function img(room, work, kind) {
   return "images/" + room.slug + "/" + kind + "/" + work.file;
 }
 
+function caption(room, work) {
+  return '<span class="num">N° ' + esc(work.id) + '</span> — ' + esc(room.title);
+}
+
+function altText(room, work) {
+  return room.title + ", œuvre n° " + work.id;
+}
+
 function theme() {
   var t = document.documentElement.getAttribute("data-theme");
   if (t === "light" || t === "dark") return t;
@@ -97,8 +105,8 @@ function initRoom() {
     var loading = i === 0 ? "eager" : "lazy";
     var aspect = work.w + " / " + work.h;
     html += '<figure class="work" style="animation-delay:' + (i * 0.1 + 0.1) + 's">';
-    html += '<img src="' + esc(img(room, work, "full")) + '" alt="' + esc(work.alt) + '" width="' + work.w + '" height="' + work.h + '" style="aspect-ratio:' + aspect + '" loading="' + loading + '" decoding="async" data-index="' + i + '">';
-    html += '<figcaption><span class="work-id">N° ' + esc(work.id) + '</span> — ' + esc(work.title) + ', ' + esc(work.year) + ' — ' + esc(work.medium) + '</figcaption>';
+    html += '<img src="' + esc(img(room, work, "full")) + '" alt="' + esc(altText(room, work)) + '" width="' + work.w + '" height="' + work.h + '" style="aspect-ratio:' + aspect + '" loading="' + loading + '" decoding="async" data-index="' + i + '">';
+    html += '<figcaption>' + caption(room, work) + '</figcaption>';
     html += '</figure>';
   });
   html += '</div>';
@@ -115,8 +123,8 @@ function initRoom() {
     currentIndex = index;
     var w = works[currentIndex];
     lbImg.src = img(room, w, "full");
-    lbImg.alt = w.alt;
-    lbCaption.innerHTML = '<span class="work-id">N° ' + esc(w.id) + '</span> — ' + esc(w.title) + ', ' + esc(w.year) + ' — ' + esc(w.medium);
+    lbImg.alt = esc(altText(room, w));
+    lbCaption.innerHTML = caption(room, w);
     lightbox.hidden = false;
     document.body.style.overflow = "hidden";
     if (currentIndex + 1 < works.length) {

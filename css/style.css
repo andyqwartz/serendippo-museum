@@ -359,3 +359,5 @@ a:hover {
   color: var(--dim);
   margin-top: 2rem;
 }
+
+.num { color: var(--fg); }

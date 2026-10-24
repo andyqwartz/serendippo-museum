@@ -1,0 +1,24 @@
+{
+  "title": "SERENDIPPO",
+  "author": "",
+  "statement": "A museum of fortunate accidents.",
+  "about": [
+    "Premier paragraphe de présentation.",
+    "Deuxième paragraphe."
+  ],
+  "contact": "",
+  "series": {
+    "salle-test": {
+      "folder": "Salle de test",
+      "number": "01",
+      "year": "2026",
+      "text": "Salle provisoire pour vérifier le site. À remplacer par un vrai projet."
+    },
+    "saint-germain": {
+      "folder": "Saint-Germain",
+      "number": "02",
+      "year": "2026",
+      "text": ""
+    }
+  }
+}
