@@ -14,3 +14,4 @@ image_amelioree_haute_qualite.jpg -> 013.jpg
 replicate-prediction-bdy4eh5ranrmr0d1ae0tgmghdm.jpg -> 014.jpg
 replicate-prediction-j4xve95z09rmw0d1aj6s06kv84.jpg -> 015.jpg
 replicate-prediction-zwqn51430hrmr0d1adzax32jg8.jpg -> 016.jpg
+amelioree_out-0sdfghj].jpg -> 017.jpg
