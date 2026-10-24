@@ -147,3 +147,4 @@ No CMS. No database. No build step on your machine.
 Just folders, files, and a pipeline that gets out of the way.
 
 The museum is the images. Everything else is silence.
+<!-- trigger rebuild -->
