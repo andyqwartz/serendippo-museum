@@ -3,20 +3,15 @@
   "author": "",
   "statement": "A museum of fortunate accidents.",
   "about": [
-    "Premier paragraphe de présentation.",
-    "Deuxième paragraphe."
+    "SERENDIPPO — Museum of Fortunate Accidents est un musée virtuel présentant des séries d'images générées.",
+    "Chaque salle correspond à une série thématique, dont les œuvres sont numérotées séquentiellement et portent le nom de la série.",
+    "Le site est volontairement minimaliste, monochrome, sans dépendances externes, pour que les œuvres restent seules au centre."
   ],
   "contact": "",
   "series": {
-    "salle-test": {
-      "folder": "Salle de test",
-      "number": "01",
-      "year": "2026",
-      "text": "Salle provisoire pour vérifier le site. À remplacer par un vrai projet."
-    },
     "saint-germain": {
       "folder": "Saint-Germain",
-      "number": "02",
+      "number": "01",
       "year": "2026",
       "text": ""
     }

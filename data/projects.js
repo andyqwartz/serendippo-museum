@@ -3,14 +3,15 @@ window.MUSEUM = {
   "author": "",
   "statement": "A museum of fortunate accidents.",
   "about": [
-    "Premier paragraphe de présentation.",
-    "Deuxième paragraphe."
+    "SERENDIPPO — Museum of Fortunate Accidents est un musée virtuel présentant des séries d'images générées.",
+    "Chaque salle correspond à une série thématique, dont les œuvres sont numérotées séquentiellement et portent le nom de la série.",
+    "Le site est volontairement minimaliste, monochrome, sans dépendances externes, pour que les œuvres restent seules au centre."
   ],
   "contact": "",
   "rooms": [
     {
       "slug": "saint-germain",
-      "number": "02",
+      "number": "01",
       "title": "Saint-Germain",
       "year": "2026",
       "text": "",
