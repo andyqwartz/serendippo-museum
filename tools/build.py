@@ -125,9 +125,9 @@ def convert(src, slug, stem, force):
     if not force and fo.exists() and to.exists() and fo.stat().st_mtime >= src.stat().st_mtime:
         return name, False
     im = ImageOps.exif_transpose(Image.open(src)).convert("RGB")
-    a = im.copy()
-    a.thumbnail((2000, 2000))
-    a.save(fo, "WEBP", quality=82, method=6)
+    # full: résolution d'origine, WebP qualité 95 (near-lossless)
+    im.save(fo, "WEBP", quality=95, method=6)
+    # thumb: 640px max, qualité 78
     b = im.copy()
     b.thumbnail((640, 640))
     b.save(to, "WEBP", quality=78, method=6)
