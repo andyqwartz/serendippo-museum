@@ -475,15 +475,17 @@ a:hover {
 .num { color: var(--fg); }
 
 /* Visionneuse */
-.viewer { position: fixed; inset: 0; z-index: 60; background: var(--bg); color: var(--fg); overflow: hidden; }
+.viewer { position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column; background: var(--bg); color: var(--fg); overflow: hidden; }
 .viewer[hidden] { display: none; }
-.viewer-stage { position: absolute; inset: 0; overflow: hidden; touch-action: none; cursor: grab; }
-.viewer-img { position: absolute; left: 0; top: 0; max-width: none; max-height: none; transform-origin: 0 0; will-change: transform; user-select: none; -webkit-user-drag: none; }
-.viewer-loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none; font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--dim); }
-.viewer.is-loading .viewer-loading { display: block; }
-.viewer-bar { position: absolute; top: 0; right: 0; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.4rem; padding: var(--pad); padding-top: calc(var(--pad) + env(safe-area-inset-top, 0px)); }
+.viewer-bar { flex: none; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.4rem; padding: 0.8rem var(--pad); padding-top: calc(0.8rem + env(safe-area-inset-top, 0px)); border-bottom: 1px solid var(--line); }
+.viewer-group { display: flex; gap: 0.4rem; }
 .viewer-bar button { min-width: 2.4rem; height: 2.4rem; padding: 0 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--line); font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.15em; cursor: pointer; }
 .viewer-bar button:hover { border-color: var(--fg); }
-.viewer-cap { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between; gap: 1rem; padding: var(--pad); padding-bottom: calc(var(--pad) + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to top, var(--bg), transparent); font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--dim); pointer-events: none; }
-#fullscreen-toggle { font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.15em; background: none; border: 0; padding: 0; color: var(--fg); cursor: pointer; }
-#fullscreen-toggle:hover { text-decoration: underline; }
+.viewer-stage { position: relative; flex: 1; min-height: 0; overflow: hidden; touch-action: none; cursor: grab; }
+.viewer-img { position: absolute; left: 0; top: 0; max-width: none; max-height: none; transform-origin: 0 0; will-change: transform; user-select: none; -webkit-user-drag: none; }
+.viewer-loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none; pointer-events: none; font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--dim); }
+.viewer.is-loading .viewer-loading { display: block; }
+.viewer-cap { flex: none; display: flex; justify-content: space-between; gap: 1rem; padding: 0.8rem var(--pad); padding-bottom: calc(0.8rem + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line); font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--dim); }
+@media (max-width: 600px) {
+  .viewer-bar button { min-width: 2.1rem; height: 2.1rem; padding: 0 0.4rem; }
+}

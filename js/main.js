@@ -88,7 +88,6 @@ function renderHeader() {
     else if (page === "room") initRoom();
     else if (page === "about") initAbout();
   });
-  Viewer.headerButton();
 }
 
 function renderFooter() {

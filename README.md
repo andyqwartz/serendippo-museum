@@ -65,7 +65,7 @@ La version affichée dans la galerie et la visionneuse est identique pixel pour 
 
 ## Visionneuse
 
-Un clic sur une œuvre ouvre la visionneuse : molette ou pincement pour zoomer, glisser pour se déplacer, double-clic (ou double-tap) pour passer de « ajusté » à la taille réelle, bouton 1:1 pour un pixel de l'image par pixel de l'écran, balayage horizontal pour changer d'œuvre. Raccourcis : flèches (œuvre précédente ou suivante), + et − (zoom), 0 (ajuster), 1 (1:1), F (plein écran), Échap (fermer). Le bouton « Plein écran » de l'en-tête met toute la galerie en plein écran (absent quand le navigateur ne le permet pas). Chaque œuvre a un lien direct, par exemple `salle.html?p=saint-germain#003`.
+Un clic sur une œuvre ouvre la visionneuse : molette ou pincement pour zoomer, glisser pour se déplacer, double-clic (ou double-tap) pour passer de « ajusté » à la taille réelle, bouton 1:1 pour un pixel de l'image par pixel de l'écran, balayage horizontal pour changer d'œuvre. Raccourcis : flèches (œuvre précédente ou suivante), + et − (zoom), 0 (ajuster), 1 (1:1), F (plein écran), Échap (fermer). Le bouton ⛶ de la visionneuse passe en plein écran (absent quand le navigateur ne le permet pas). Les boutons et la légende ont leur propre bandeau : ils ne recouvrent jamais l'image, même zoomée. Chaque œuvre a un lien direct, par exemple `salle.html?p=saint-germain#003`.
 
 ---
 

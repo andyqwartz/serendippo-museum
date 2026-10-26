@@ -1,5 +1,7 @@
 /* Visionneuse SERENDIPPO : zoom, deplacement, plein ecran, liens directs.
-   JavaScript classique, sans dependance. Utilise img(), caption() et altText() definies dans main.js. */
+   JavaScript classique, sans dependance. Utilise img(), caption() et altText() definies dans main.js.
+   Disposition : bandeau d'outils en haut, zone de l'image au milieu, legende en bas.
+   Rien ne recouvre l'image : elle est ajustee et decoupee dans la zone du milieu. */
 (function () {
   "use strict";
   var root, stage, imgEl, capEl, countEl, zoomEl, fsBtn;
@@ -21,11 +23,10 @@
     var f = document.exitFullscreen || document.webkitExitFullscreen;
     if (f) { var p = f.call(document); if (p && p.catch) { p.catch(function () {}); } }
   }
-  function toggleFullscreen(target) {
+  function toggleFullscreen() {
     if (fsElement()) { exitFs(); return; }
-    var t = target || root || document.documentElement;
-    var f = t.requestFullscreen || t.webkitRequestFullscreen;
-    if (f) { var p = f.call(t); if (p && p.catch) { p.catch(function () {}); } }
+    var f = root.requestFullscreen || root.webkitRequestFullscreen;
+    if (f) { var p = f.call(root); if (p && p.catch) { p.catch(function () {}); } }
   }
 
   function apply() {
@@ -163,7 +164,7 @@
     else if (k === "-") { zoomBy(1 / 1.5); }
     else if (k === "0") { fitView(); }
     else if (k === "1") { setActual(); }
-    else if (k === "f" || k === "F") { toggleFullscreen(root); }
+    else if (k === "f" || k === "F") { toggleFullscreen(); }
     else { return; }
     e.preventDefault();
   }
@@ -171,8 +172,6 @@
   function syncFs() {
     var on = !!fsElement();
     if (fsBtn) { fsBtn.setAttribute("aria-label", on ? "Quitter le plein écran" : "Plein écran"); }
-    var hb = document.getElementById("fullscreen-toggle");
-    if (hb) { hb.textContent = on ? "Quitter le plein écran" : "Plein écran"; }
     onResize();
   }
 
@@ -222,11 +221,12 @@
     root.setAttribute("aria-modal", "true");
     root.setAttribute("aria-label", "Visionneuse");
     root.innerHTML =
-      '<div class="viewer-stage"><img class="viewer-img" alt="" draggable="false"></div>' +
-      '<div class="viewer-loading">Chargement…</div>' +
       '<div class="viewer-bar">' +
+      '<div class="viewer-group">' +
       '<button type="button" data-act="prev" aria-label="Œuvre précédente">←</button>' +
       '<button type="button" data-act="next" aria-label="Œuvre suivante">→</button>' +
+      '</div>' +
+      '<div class="viewer-group">' +
       '<button type="button" data-act="out" aria-label="Zoom arrière">−</button>' +
       '<button type="button" data-act="in" aria-label="Zoom avant">+</button>' +
       '<button type="button" data-act="actual" aria-label="Taille réelle, un pixel de l image par pixel de l écran">1:1</button>' +
@@ -234,6 +234,9 @@
       '<button type="button" data-act="fs" aria-label="Plein écran">⛶</button>' +
       '<button type="button" data-act="close" aria-label="Fermer">✕</button>' +
       '</div>' +
+      '</div>' +
+      '<div class="viewer-stage"><img class="viewer-img" alt="" draggable="false">' +
+      '<div class="viewer-loading">Chargement…</div></div>' +
       '<div class="viewer-cap"><span class="viewer-title"></span>' +
       '<span><span class="viewer-zoom"></span> · <span class="viewer-count"></span></span></div>';
     document.body.appendChild(root);
@@ -255,7 +258,7 @@
       else if (a === "in") { zoomBy(1.5); }
       else if (a === "actual") { setActual(); }
       else if (a === "fit") { fitView(); }
-      else if (a === "fs") { toggleFullscreen(root); }
+      else if (a === "fs") { toggleFullscreen(); }
       else if (a === "close") { close(); }
     });
     stage.addEventListener("wheel", onWheel, { passive: false });
@@ -265,6 +268,7 @@
     stage.addEventListener("pointercancel", onUp);
     imgEl.addEventListener("load", onLoad);
     window.addEventListener("resize", onResize);
+    if (window.ResizeObserver) { new ResizeObserver(onResize).observe(stage); }
     document.addEventListener("keydown", onKey);
     document.addEventListener("fullscreenchange", syncFs);
     document.addEventListener("webkitfullscreenchange", syncFs);
@@ -302,19 +306,5 @@
     }
   }
 
-  function headerButton() {
-    if (!fsSupported()) { return; }
-    var header = document.getElementById("site-header");
-    if (!header || document.getElementById("fullscreen-toggle")) { return; }
-    var host = header.querySelector("nav") || header;
-    var b = document.createElement("button");
-    b.type = "button";
-    b.id = "fullscreen-toggle";
-    b.textContent = "Plein écran";
-    b.setAttribute("aria-label", "Basculer le plein écran");
-    b.addEventListener("click", function () { toggleFullscreen(document.documentElement); });
-    host.appendChild(b);
-  }
-
-  window.Viewer = { open: open, close: close, openFromHash: openFromHash, headerButton: headerButton };
+  window.Viewer = { open: open, close: close, openFromHash: openFromHash };
 })();

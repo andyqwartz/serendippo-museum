@@ -100,6 +100,15 @@ for page in ("index.html", "salle.html", "a-propos.html"):
     if "js/viewer.js" not in t or "js/main.js" not in t or t.index("js/viewer.js") > t.index("js/main.js"):
         errors.append("%s : js/viewer.js doit être chargé avant js/main.js" % page)
 
+for name in ("js/main.js", "js/viewer.js", "css/style.css"):
+    if Path(name).exists():
+        t2 = Path(name).read_text(encoding="utf-8")
+        if "headerButton" in t2 or "fullscreen-toggle" in t2:
+            errors.append("%s : le bouton plein écran de l'en-tête doit être supprimé" % name)
+css2 = Path("css/style.css").read_text(encoding="utf-8")
+if re.search(r"\.viewer-(bar|cap)\s*\{[^}]*position:\s*absolute", css2):
+    errors.append("css : la barre ou la légende de la visionneuse recouvre l'image (position absolute interdite)")
+
 if not Path(".github/workflows/pages.yml").exists():
     errors.append("workflow GitHub Actions manquant : .github/workflows/pages.yml")
 
