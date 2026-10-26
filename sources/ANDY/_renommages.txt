@@ -1,0 +1,2 @@
+amelioree_generated_output_1xdfg.jpg -> 001.jpg
+amelioree_out-1rtyui.png -> 002.png
