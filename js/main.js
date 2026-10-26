@@ -88,6 +88,7 @@ function renderHeader() {
     else if (page === "room") initRoom();
     else if (page === "about") initAbout();
   });
+  Viewer.headerButton();
 }
 
 function renderFooter() {
@@ -158,196 +159,13 @@ function initRoom() {
     html += '</figure>';
   });
   html += '</div>';
-  // Lightbox with zoom/pan support
-  html += '<div id="lightbox" hidden><div id="lightbox-inner"><img alt=""><figcaption></figcaption></div><div id="lightbox-controls"><button id="lb-prev" type="button" aria-label="' + (currentLang === "fr" ? "Précédent" : "Previous") + '">←</button><button id="lb-next" type="button" aria-label="' + (currentLang === "fr" ? "Suivant" : "Next") + '">→</button><button id="lb-fullscreen" type="button" aria-label="' + (currentLang === "fr" ? "Plein écran" : "Fullscreen") + '">⛶</button><button id="lb-close" type="button" aria-label="' + (currentLang === "fr" ? "Fermer" : "Close") + '">✕</button></div></div>';
   app.innerHTML = html;
 
-  var works = room.works;
-  var lightbox = document.getElementById("lightbox");
-  var lbInner = document.getElementById("lightbox-inner");
-  var lbImg = lightbox.querySelector("img");
-  var lbCaption = lightbox.querySelector("figcaption");
-  var currentIndex = 0;
-  var scale = 1;
-  var translateX = 0;
-  var translateY = 0;
-  var isDragging = false;
-  var dragStartX = 0;
-  var dragStartY = 0;
-  var dragStartTranslateX = 0;
-  var dragStartTranslateY = 0;
-
-  function updateTransform() {
-    lbImg.style.transform = "translate(" + translateX + "px, " + translateY + "px) scale(" + scale + ")";
-  }
-
-  function resetZoom() {
-    scale = 1;
-    translateX = 0;
-    translateY = 0;
-    updateTransform();
-  }
-
-  function openLightbox(index) {
-    currentIndex = index;
-    resetZoom();
-    var w = works[currentIndex];
-    lbImg.src = img(room, w, "full");
-    lbImg.alt = esc(altText(room, w, currentLang));
-    lbCaption.innerHTML = caption(room, w, currentLang);
-    lightbox.hidden = false;
-    document.body.style.overflow = "hidden";
-    if (currentIndex + 1 < works.length) {
-      var nextImg = new Image();
-      nextImg.src = img(room, works[currentIndex + 1], "full");
-    }
-  }
-
-  function closeLightbox() {
-    lightbox.hidden = true;
-    document.body.style.overflow = "";
-    resetZoom();
-  }
-
-  function showNext() {
-    currentIndex = (currentIndex + 1) % works.length;
-    openLightbox(currentIndex);
-  }
-
-  function showPrev() {
-    currentIndex = (currentIndex - 1 + works.length) % works.length;
-    openLightbox(currentIndex);
-  }
-
-  function toggleFullscreen() {
-    if (!document.fullscreenElement) {
-      lightbox.requestFullscreen().catch(function() {});
-    } else {
-      document.exitFullscreen();
-    }
-  }
-
-  // Zoom with wheel
-  lbInner.addEventListener("wheel", function(e) {
-    if (lightbox.hidden) return;
-    e.preventDefault();
-    var rect = lbInner.getBoundingClientRect();
-    var mouseX = e.clientX - rect.left - rect.width / 2;
-    var mouseY = e.clientY - rect.top - rect.height / 2;
-    var zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
-    var newScale = Math.min(Math.max(scale * zoomFactor, 0.5), 8);
-    var ratio = newScale / scale;
-    translateX = mouseX - (mouseX - translateX) * ratio;
-    translateY = mouseY - (mouseY - translateY) * ratio;
-    scale = newScale;
-    updateTransform();
-  }, { passive: false });
-
-  // Drag to pan
-  lbInner.addEventListener("mousedown", function(e) {
-    if (lightbox.hidden || scale === 1) return;
-    isDragging = true;
-    dragStartX = e.clientX;
-    dragStartY = e.clientY;
-    dragStartTranslateX = translateX;
-    dragStartTranslateY = translateY;
-    lbInner.style.cursor = "grabbing";
-    e.preventDefault();
-  });
-
-  document.addEventListener("mousemove", function(e) {
-    if (!isDragging) return;
-    translateX = dragStartTranslateX + (e.clientX - dragStartX);
-    translateY = dragStartTranslateY + (e.clientY - dragStartY);
-    updateTransform();
-  });
-
-  document.addEventListener("mouseup", function() {
-    if (isDragging) {
-      isDragging = false;
-      lbInner.style.cursor = scale > 1 ? "grab" : "default";
-    }
-  });
-
-  // Double-click to reset zoom
-  lbInner.addEventListener("dblclick", function(e) {
-    if (lightbox.hidden) return;
-    resetZoom();
-  });
-
-  // Touch support for mobile
-  var touchStartDist = 0;
-  var touchStartScale = 1;
-  var touchCenterX = 0;
-  var touchCenterY = 0;
-
-  lbInner.addEventListener("touchstart", function(e) {
-    if (lightbox.hidden) return;
-    if (e.touches.length === 2) {
-      e.preventDefault();
-      var t1 = e.touches[0];
-      var t2 = e.touches[1];
-      touchStartDist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
-      touchStartScale = scale;
-      var rect = lbInner.getBoundingClientRect();
-      touchCenterX = (t1.clientX + t2.clientX) / 2 - rect.left - rect.width / 2;
-      touchCenterY = (t1.clientY + t2.clientY) / 2 - rect.top - rect.height / 2;
-    } else if (e.touches.length === 1 && scale > 1) {
-      isDragging = true;
-      dragStartX = e.touches[0].clientX;
-      dragStartY = e.touches[0].clientY;
-      dragStartTranslateX = translateX;
-      dragStartTranslateY = translateY;
-    }
-  }, { passive: false });
-
-  lbInner.addEventListener("touchmove", function(e) {
-    if (lightbox.hidden) return;
-    if (e.touches.length === 2) {
-      e.preventDefault();
-      var t1 = e.touches[0];
-      var t2 = e.touches[1];
-      var dist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
-      var newScale = Math.min(Math.max(touchStartScale * (dist / touchStartDist), 0.5), 8);
-      var ratio = newScale / scale;
-      translateX = touchCenterX - (touchCenterX - translateX) * ratio;
-      translateY = touchCenterY - (touchCenterY - translateY) * ratio;
-      scale = newScale;
-      updateTransform();
-    } else if (e.touches.length === 1 && isDragging) {
-      e.preventDefault();
-      translateX = dragStartTranslateX + (e.touches[0].clientX - dragStartX);
-      translateY = dragStartTranslateY + (e.touches[0].clientY - dragStartY);
-      updateTransform();
-    }
-  }, { passive: false });
-
-  lbInner.addEventListener("touchend", function(e) {
-    if (e.touches.length === 0) {
-      isDragging = false;
-    }
-  });
-
   app.querySelectorAll(".work img").forEach(function(el, i) {
-    el.addEventListener("click", function() { openLightbox(i); });
+    el.addEventListener("click", function() { Viewer.open(room, i); });
   });
 
-  document.getElementById("lb-next").addEventListener("click", showNext);
-  document.getElementById("lb-prev").addEventListener("click", showPrev);
-  document.getElementById("lb-close").addEventListener("click", closeLightbox);
-  document.getElementById("lb-fullscreen").addEventListener("click", toggleFullscreen);
-  lightbox.addEventListener("click", function(e) {
-    if (e.target === lightbox) closeLightbox();
-  });
-
-  document.addEventListener("keydown", function(e) {
-    if (lightbox.hidden) return;
-    if (e.key === "Escape") closeLightbox();
-    else if (e.key === "ArrowRight") showNext();
-    else if (e.key === "ArrowLeft") showPrev();
-    else if (e.key === "f" || e.key === "F") toggleFullscreen();
-    else if (e.key === "0" || e.key === " ") resetZoom();
-  });
+  Viewer.openFromHash(room);
 }
 
 function initAbout() {

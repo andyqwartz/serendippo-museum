@@ -55,6 +55,20 @@ Server starts → builds → opens browser → **rebuilds on every page refresh*
 
 Offline mode: double-click `index.html` → shows last built state.  
 Manual rebuild: `python3 tools/build.py` (`--force` to reprocess all).
+---
+
+## Qualité des images
+
+La version affichée dans la galerie et la visionneuse est identique pixel pour pixel à ton original : WebP sans perte, résolution d'origine, profil couleur conservé. Seules les métadonnées sont retirées (EXIF, XMP, textes de génération comme les prompts), ce qui reste cohérent avec la règle « on ne garde pas les prompts ». Les miniatures (640 px) servent uniquement aux aperçus de l'accueil. `python3 tools/verify.py` compare chaque image générée à son original et confirme qu'elles sont identiques. Une image JPEG source reste aussi nette qu'elle l'est, jamais plus. Les fichiers sans perte sont plus lourds qu'un JPEG : GitHub Pages limite le site à 1 Go, et `tools/check.py` bloque la publication avant d'atteindre cette limite.
+
+---
+
+## Visionneuse
+
+Un clic sur une œuvre ouvre la visionneuse : molette ou pincement pour zoomer, glisser pour se déplacer, double-clic (ou double-tap) pour passer de « ajusté » à la taille réelle, bouton 1:1 pour un pixel de l'image par pixel de l'écran, balayage horizontal pour changer d'œuvre. Raccourcis : flèches (œuvre précédente ou suivante), + et − (zoom), 0 (ajuster), 1 (1:1), F (plein écran), Échap (fermer). Le bouton « Plein écran » de l'en-tête met toute la galerie en plein écran (absent quand le navigateur ne le permet pas). Chaque œuvre a un lien direct, par exemple `salle.html?p=saint-germain#003`.
+
+---
+
 
 ---
 
